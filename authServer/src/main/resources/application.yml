@@ -1,0 +1,32 @@
+spring:
+  profiles:
+    default: default
+  application:
+    name: authServer
+  datasource:
+    url: jdbc:sqlserver://192.168.10.4:50037;databaseName=SATA;encrypt=true;trustServerCertificate=true
+    username: CNX_SASIP
+    password: SOh*OfJ*
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+  cloud:
+    config:
+      enabled: false
+
+jwt:
+  secret: "7ejIeQOV3r97v/WrPLJfMybepT59g/RycZlAkESJ8pg="
+
+server:
+  port: 3030
+  servlet:
+    context-path: /authServer
+
+eureka:
+  instance:
+    instance-id: "${spring.application.name}:${random.value}"
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

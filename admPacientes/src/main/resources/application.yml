@@ -1,0 +1,25 @@
+server:
+  port: 0
+  servlet:
+    context-path: /api
+
+spring:
+ application:
+    name: admPacientes
+
+ datasource:
+    url:        jdbc:oracle:thin:@172.20.29.250:1521:HPTUDLLO
+    username:   BASDATHPTUDLLO
+    password:   Pr0y3ct0-jun16
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size:   5
+
+eureka:
+  instance:
+    instance-id: "${spring.application.name}:${random.value}"
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+

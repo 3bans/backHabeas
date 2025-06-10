@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis:7.0-alpine  # Versión moderna y ligera
+    container_name: myRedis
+    restart: unless-stopped  # Se reinicia automáticamente a menos que se detenga manualmente
+    ports:
+      - '6379:6379'
+    environment:
+      - REDIS_PASSWORD=debuggeandoideas  # Contraseña definida por variable de entorno
+    volumes:
+      - redis_data:/data  # Persistencia de datos en el volumen
+    command: 
+      - redis-server 
+      - --requirepass $${REDIS_PASSWORD}  # Utiliza la variable de entorno para la contraseña
+      - --loglevel warning
+    networks:
+      - backend_network  # Red aislada para mayor seguridad
+
+volumes:
+  redis_data:  # Volumen para persistir datos
+
+networks:
+  backend_network:
+    driver: bridge
