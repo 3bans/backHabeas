@@ -1,0 +1,75 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MenuHabeasApplication<menuHabeas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.hptu.interopDllo.menuHabeas.menuHabeas.MenuHabeasApplication",
+            "projectName": "menuHabeas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AdmPacientesApplication<admPacientes>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.hptu.interopDllo.admPacientes.admPacientes.AdmPacientesApplication",
+            "projectName": "admPacientes",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AuthServerApplication<authServer>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.interopDllo.authServer.AuthServerApplication",
+            "projectName": "authServer",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50606 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=authServer"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-GatewayApplication<gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.interopDllo.gateway.GatewayApplication",
+            "projectName": "gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-HabeasLoginApplication<habeasLogin>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.hptu.interopDllo.habeasData.habeasLogin.HabeasLoginApplication",
+            "projectName": "habeasLogin",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-PacientesHabeasApplication<pacientesHabeas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.PacientesHabeasApplication",
+            "projectName": "pacientesHabeas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-RegistryServerApplication<registryServer>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.interopDllo.registryServer.RegistryServerApplication",
+            "projectName": "registryServer",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

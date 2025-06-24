@@ -9,15 +9,23 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class HabeasRequest {
-    private String noIdentificacion;    // NO_IDENTIFICACION
-    private String tipoId;              // TIPO_ID
-    private String fechaAprobacion;     // FECHA_APROBACION (Formato 'yyyy-MM-dd' o similar)
-    private Boolean aprobacion;         // APROBACION (true/false)
-    private String idColaborador;       // ID_COLABORADOR
-    private String nombreColaborador;   // NOMBRE_COLABORADOR
-    private String puntoAtencion;       // PUNTO_ATENCION
-    private String medioAutorizacion;   // MEDIO_AUTORIZACION
-    private String codigo;              // CODIGO
-    private String historia;            // HISTORIA
-    private String correoEnviado;       // CORREO_ENVIADO
+
+    // Para ASIGNACION_HABEAS
+    private Long idMedico;
+    private Long idAplicacion;
+    private Integer idMotivo;   // nulo si aprobó
+
+    // Para PATIENT_REG_HABEAS_DATA
+    private String noIdentificacion;
+    private String tipoId;
+    private String fechaAprobacion;    // "yyyy-MM-dd" opcional
+    private String aprobacion;
+    private String idColaborador;
+    private String nombreColaborador;
+    private String puntoAtencion;
+    private String medioAutorizacion;
+    private String codigo;
+    private String historia;
+    private String correoEnviado;
 }
+
