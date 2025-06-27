@@ -4,6 +4,7 @@ import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.HabeasRe
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.HabeasResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.ListaMedicosResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.MotivosaHabeas;
+import java.sql.Timestamp;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,12 +38,11 @@ public class HabeasService {
      */
 public Optional<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId) {
     String sql = """
-        SELECT 
-            PRHD.NO_IDENTIFICACION, 
-            MM.NOMBRE_COMPLETO
-        FROM PATIENT_REG_HABEAS_DATA PRHD
-        INNER JOIN ASIGNACION_HABEAS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION
-        INNER JOIN MAESTRO_MEDICOS MM ON AH.ID_MEDICO = MM.ID_MEDICO
+                        SELECT   PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, MAESTRO_MOTIVOS_HABEAS.DESCRIPCION
+                         FROM  PATIENT_REG_HABEAS_DATA AS PRHD INNER JOIN
+                         ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION INNER JOIN
+                         MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO INNER JOIN
+                         MAESTRO_MOTIVOS_HABEAS ON AH.ID_MOTIVO = MAESTRO_MOTIVOS_HABEAS.ID_MOTIVO
         WHERE PRHD.TIPO_ID = ? AND PRHD.NO_IDENTIFICACION = ?
     """;
 
@@ -56,13 +57,16 @@ public Optional<HabeasResponse> buscarHabeas(String noIdentificacion, String tip
             HabeasResponse r = new HabeasResponse();
             r.setNoIdentificacion(rs.getString("NO_IDENTIFICACION"));
             r.setNombreMedico(rs.getString("NOMBRE_COMPLETO"));
-            log.debug("Resultado encontrado: {}", r);
+            r.setFechaRegistro(rs.getString("FECHA_REGISTRO"));
+            
+            r.setDescripcion(rs.getString("DESCRIPCION"));
+
+            
             return r;
         },
         tipo, doc
     );
 
-    log.info("Tamaño de resultados: {}", resultados.size());
     return resultados.stream().findFirst();
 }
 
@@ -79,8 +83,8 @@ public Long registrar(HabeasRequest req) {
     // 1. INSERT en ASIGNACION_HABEAS
     String sqlAsig = """
         INSERT INTO ASIGNACION_HABEAS
-        ( ID_HABEAS, ID_MEDICO, ID_APLICACION, ID_MOTIVO )
-        VALUES (?, ?, ?, ?)
+        ( ID_HABEAS, ID_MEDICO, ID_APLICACION, ID_MOTIVO,FECHA_REGISTRO )
+        VALUES (?, ?, ?, ?,?)
     """;
 
     KeyHolder asigHolder = new GeneratedKeyHolder();
@@ -94,6 +98,8 @@ public Long registrar(HabeasRequest req) {
         } else {
             ps.setNull(4, Types.INTEGER);
         }
+        ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+
         return ps;
     }, asigHolder);
 
@@ -153,23 +159,29 @@ public Long registrar(HabeasRequest req) {
 
 
 
-  public List<ListaMedicosResponse> buscarMedicosPorUsuario(String idUsuario) {
+  public List<ListaMedicosResponse> buscarMedicosPorUsuario(String idUsuario, String idPaciente, String aprobacion) {
         String sql = """
-            SELECT 
-                MM.NOMBRE_COMPLETO, 
-                MM.ID_MEDICO
-            FROM ASIGNACION_MEDICOS AM
-            INNER JOIN MAESTRO_MEDICOS MM ON AM.ID_MEDICO = MM.ID_MEDICO
-            WHERE AM.ID_USUARIO = ?
+    
+SELECT       MAESTRO_MEDICOS.ID_MEDICO,  MAESTRO_MEDICOS.NOMBRE_COMPLETO
+FROM            ASIGNACION_MEDICOS INNER JOIN
+                         MAESTRO_MEDICOS ON ASIGNACION_MEDICOS.ID_MEDICO = MAESTRO_MEDICOS.ID_MEDICO
+						 WHERE  ASIGNACION_MEDICOS.ID_USUARIO=? AND MAESTRO_MEDICOS.ID_MEDICO NOT IN  (
+    SELECT AM.ID_MEDICO
+FROM ASIGNACION_HABEAS AM
+INNER JOIN PATIENT_REG_HABEAS_DATA PRHD ON AM.ID_ASIGNACION = PRHD.ID_ASIGNACION_HABEAS
+WHERE PRHD.NO_IDENTIFICACION = ? and PRHD.APROBACION= ?)
         """;
   String doc  = idUsuario != null ? idUsuario.replaceAll("^'+|'+$", "") : null;
+  String idPacientes =idPaciente != null ? idPaciente.replaceAll("^'+|'+$", "") : null;
+    String aprobacions =aprobacion != null ? aprobacion.replaceAll("^'+|'+$", "") : null;
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             ListaMedicosResponse dto = new ListaMedicosResponse();
             dto.setNoIdentificacion(rs.getString("ID_MEDICO"));
             dto.setNombreMedico(rs.getString("NOMBRE_COMPLETO"));
             //log.debug("✅ Médico encontrado: {}", dto);
             return dto;
-        }, doc);
+        }, doc,idPacientes,aprobacions);
     }
 
 

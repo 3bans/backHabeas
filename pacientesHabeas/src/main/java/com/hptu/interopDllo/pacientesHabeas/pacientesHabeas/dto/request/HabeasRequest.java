@@ -14,7 +14,7 @@ public class HabeasRequest {
     private Long idMedico;
     private Long idAplicacion;
     private Integer idMotivo;   // nulo si aprobó
-
+    private String fechaRegistro;
     // Para PATIENT_REG_HABEAS_DATA
     private String noIdentificacion;
     private String tipoId;

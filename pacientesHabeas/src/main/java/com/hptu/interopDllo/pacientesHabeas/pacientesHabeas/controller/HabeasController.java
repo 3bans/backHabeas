@@ -84,18 +84,20 @@ public ResponseEntity<Map<String, Object>> existeHabeas(
 
 
 
-    @GetMapping("/secretaria/{idUsuario}")
-    public ResponseEntity<List<ListaMedicosResponse>> obtenerMedicos(@PathVariable String idUsuario) {
-        List<ListaMedicosResponse> resultado = habeasService.buscarMedicosPorUsuario(idUsuario);
-        
-        
+ @GetMapping("/secretaria/{idUsuario}/{idPaciente}/{aprobacion}")
+public ResponseEntity<List<ListaMedicosResponse>> obtenerMedicos(
+        @PathVariable String idUsuario,
+        @PathVariable String idPaciente,
+        @PathVariable String aprobacion) {
 
-        if (resultado.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204
-        }
+    List<ListaMedicosResponse> resultado = habeasService.buscarMedicosPorUsuario(idUsuario, idPaciente,aprobacion);
 
-        return ResponseEntity.ok(resultado); // 200 OK con lista de médicos
+    if (resultado.isEmpty()) {
+        return ResponseEntity.noContent().build(); // 204
     }
+
+    return ResponseEntity.ok(resultado); // 200 OK con lista de médicos
+}
 
    @GetMapping("/motivos")
     public ResponseEntity<List<MotivosaHabeas>> listarMotivosHabeas() {
