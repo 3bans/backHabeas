@@ -1,25 +1,30 @@
 package com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.services;
 
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.HabeasRequest;
+import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.mensajeRequest;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.HabeasResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.ListaMedicosResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.MotivosaHabeas;
+import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.entity.HasbeasData;
+import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.repository.HabeasRepository;
+
 import java.sql.Timestamp;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
+
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,9 +41,10 @@ public class HabeasService {
      * Verifica en SQL Server si existe un registro de Habeas para (noIdentificacion, tipoId).
      * Antes de ejecutar la consulta, elimina cualquier comilla simple al inicio o final de los parámetros.
      */
-public Optional<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId) {
+
+public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId) {
     String sql = """
-                        SELECT   PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, MAESTRO_MOTIVOS_HABEAS.DESCRIPCION
+                        SELECT   PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, MAESTRO_MOTIVOS_HABEAS.DESCRIPCION,  PRHD.APROBACION
                          FROM  PATIENT_REG_HABEAS_DATA AS PRHD INNER JOIN
                          ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION INNER JOIN
                          MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO INNER JOIN
@@ -60,14 +66,15 @@ public Optional<HabeasResponse> buscarHabeas(String noIdentificacion, String tip
             r.setFechaRegistro(rs.getString("FECHA_REGISTRO"));
             
             r.setDescripcion(rs.getString("DESCRIPCION"));
-
+        r.setAprobacion(rs.getString("APROBACION"));
             
             return r;
         },
         tipo, doc
     );
 
-    return resultados.stream().findFirst();
+    return resultados;
+    
 }
 
 
@@ -96,7 +103,8 @@ public Long registrar(HabeasRequest req) {
         if (req.getIdMotivo() != null) {
             ps.setInt(4, req.getIdMotivo());
         } else {
-            ps.setNull(4, Types.INTEGER);
+
+            ps.setNull(4, 6);
         }
         ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
 
@@ -153,12 +161,6 @@ public Long registrar(HabeasRequest req) {
 
 
 
-
-
-
-
-
-
   public List<ListaMedicosResponse> buscarMedicosPorUsuario(String idUsuario, String idPaciente, String aprobacion) {
         String sql = """
     
@@ -198,4 +200,39 @@ WHERE PRHD.NO_IDENTIFICACION = ? and PRHD.APROBACION= ?)
             return dto;
         });
     }
+
+     private static final String MIRTH_URL = "http://192.168.10.6:1001/ws_smsHabeas/";
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public ResponseEntity<String> reenviarSms(mensajeRequest mensaje) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<mensajeRequest> request = new HttpEntity<>(mensaje, headers);
+
+        return restTemplate.exchange(MIRTH_URL, HttpMethod.POST, request, String.class);
+    }
+
+
+    private final HabeasRepository habeasRepository;
+
+    private HabeasRepository repository;
+
+    public boolean validarYActualizar(String noIdentificacion, String codigo) {
+        Optional<HasbeasData> registroOpt =
+            habeasRepository.findByNoIdentificacionAndCodigoAndAprobacion(noIdentificacion, codigo, "P");
+
+        if (registroOpt.isPresent()) {
+            HasbeasData registro = registroOpt.get();
+            registro.setAprobacion("S");
+            registro.setFechaAprobacion(LocalDate.now()); // Opcional: si manejas fecha
+            repository.save(registro);
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

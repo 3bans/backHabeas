@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class HabeasRequest {
 
-    // Para ASIGNACION_HABEAS
+    
     private Long idMedico;
     private Long idAplicacion;
     private Integer idMotivo;   // nulo si aprobó
     private String fechaRegistro;
-    // Para PATIENT_REG_HABEAS_DATA
+
     private String noIdentificacion;
     private String tipoId;
     private String fechaAprobacion;    // "yyyy-MM-dd" opcional

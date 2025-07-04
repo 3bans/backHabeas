@@ -129,12 +129,20 @@ public class AuthController {
                 return ResponseEntity.status(500).body(Map.of("error", "JWT inválido o respuesta nula del authServer"));
             }
 
-            Map<String, Object> finalResponse = new HashMap<>();
-            finalResponse.put("code", 200);
-            finalResponse.put("description", "Login exitoso");
-            finalResponse.put("accessToken", jwtResponse.getAccessToken());
+        var userOpt = authService.findUserById(loginRequest.getUser());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("error", "Usuario no registrado en base de datos local"));
+        }
 
-            return ResponseEntity.ok(finalResponse);
+        var usuario = userOpt.get();
+
+             Map<String, Object> finalResponse = new HashMap<>();
+        finalResponse.put("code", 200);
+        finalResponse.put("description", "Login exitoso");
+        finalResponse.put("accessToken", jwtResponse.getAccessToken());
+        finalResponse.put("nombre", usuario.getNombre());
+
+        return ResponseEntity.ok(finalResponse);
 
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Error generando JWT: " + e.getMessage()));

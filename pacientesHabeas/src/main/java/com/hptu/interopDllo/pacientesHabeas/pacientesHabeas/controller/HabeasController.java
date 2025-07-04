@@ -3,7 +3,6 @@ package com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody; // ✅ ESTA ES LA CORRECTA
 
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.HabeasRequest;
+import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.mensajeRequest;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.HabeasResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.ListaMedicosResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.MotivosaHabeas;
@@ -42,20 +42,20 @@ public ResponseEntity<Map<String, Object>> existeHabeas(
     log.debug("Entró a GET /habeas/existe con noIdentificacion={} y tipoId={}", noIdentificacion, tipoId);
 
     try {
-        Optional<HabeasResponse> resultado = habeasService.buscarHabeas(noIdentificacion, tipoId);
+List<HabeasResponse> resultado = habeasService.buscarHabeas(noIdentificacion, tipoId);
 
-        Map<String, Object> body = new HashMap<>();
+       Map<String, Object> body = new HashMap<>();
 
-        if (resultado.isPresent()) {
-            body.put("code", 200);
-            body.put("description", "OK");
-            body.put("results", resultado.get());
-            return ResponseEntity.ok(body);
-        } else {
-            body.put("code", 404);
-            body.put("description", "No se encontró el paciente con Habeas Data");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
-        }
+if (!resultado.isEmpty()) {
+    body.put("code", 200);
+    body.put("description", "OK");
+    body.put("results", resultado);
+    return ResponseEntity.ok(body);
+} else {
+    body.put("code", 404);
+    body.put("description", "No se encontró el paciente con Habeas Data");
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+}
 
     } catch (Exception ex) {
         log.error("Error al verificar existencia de Habeas Data", ex);
@@ -110,5 +110,30 @@ public ResponseEntity<List<ListaMedicosResponse>> obtenerMedicos(
         return ResponseEntity.ok(motivos);
     }
     
+      
+
+
+    @PostMapping("/enviar")
+    public ResponseEntity<String> enviarSMS(@RequestBody mensajeRequest mensaje) {
+        return habeasService.reenviarSms(mensaje);
+    }
+
+
+ @PostMapping("/validarCodigo")
+public ResponseEntity<Map<String, Object>> validarCodigo(@RequestBody Map<String, String> request) {
+    String noIdentificacion = request.get("noIdentificacion");
+    String codigo = request.get("codigo");
+
+    boolean actualizado = habeasService.validarYActualizar(noIdentificacion, codigo);
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("success", actualizado);
+    response.put("message", actualizado
+        ? "Código validado y actualizado"
+        : "Código no válido o ya aprobado");
+
+    return ResponseEntity.ok(response);
+}
+
 
 }

@@ -1,5 +1,7 @@
 package com.hptu.interopDllo.habeasData.habeasLogin.service.implement;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.hptu.interopDllo.habeasData.habeasLogin.dto.request.LoginRequest;
 import com.hptu.interopDllo.habeasData.habeasLogin.dto.response.LoginUser;
 import com.hptu.interopDllo.habeasData.habeasLogin.dto.response.ResponseDto;
+import com.hptu.interopDllo.habeasData.habeasLogin.entity.UserEntity;
 import com.hptu.interopDllo.habeasData.habeasLogin.repository.UserRepository;
 import com.hptu.interopDllo.habeasData.habeasLogin.service.AuthService;
 
@@ -93,19 +96,29 @@ public class AuthServiceImpl implements AuthService {
         String idUsuario = loginRequest.getUser();
         logger.info("Buscando usuario en base de datos: {}", idUsuario);
     
-        boolean exists = this.userRepository.findByIdUsuario(idUsuario).isPresent();
-        if (!exists) {
-            logger.warn("Usuario no encontrado en la base de datos: {}", idUsuario);
-            return ResponseDto.builder()
-                    .code(404)
-                    .description("Usuario no encontrado en la base de datos")
-                    .build();
-        }
-    
-        logger.info("Usuario autenticado exitosamente: {}", idUsuario);
-        return ResponseDto.builder()
-                .code(200)
-                .description("ok")
-                .build();
+Optional<UserEntity> usuarioOpt = this.userRepository.findByIdUsuario(idUsuario);
+      if (usuarioOpt.isEmpty()) {
+    logger.warn("Usuario no encontrado en la base de datos: {}", idUsuario);
+    return ResponseDto.builder()
+            .code(404)
+            .description("Usuario no encontrado en la base de datos")
+            .build();
+}
+
+// Usuario encontrado
+UserEntity usuario = usuarioOpt.get();
+String nombre = usuario.getNombre();
+
+logger.info("Usuario autenticado exitosamente: {} - {}", idUsuario, nombre);
+
+// Puedes devolver más datos si lo deseas, aquí como ejemplo en la descripción:
+return ResponseDto.builder()
+        .code(200)
+        .description("Autenticado: " + nombre)
+        .build();
+    }
+
+     public Optional<UserEntity> findUserById(String idUsuario) {
+        return userRepository.findByIdUsuario(idUsuario);
     }
 }
