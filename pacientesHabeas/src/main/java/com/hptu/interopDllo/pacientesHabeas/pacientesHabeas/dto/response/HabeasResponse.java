@@ -13,5 +13,7 @@ public class HabeasResponse {
         private String fechaRegistro;
            private String descripcion;
            private String aprobacion;
+            private String codigo;
+            private String idMedico;
 
 }

@@ -20,7 +20,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-
+import org.springframework.scheduling.annotation.Async;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -44,38 +45,36 @@ public class HabeasService {
 
 public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId) {
     String sql = """
-                        SELECT   PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, MAESTRO_MOTIVOS_HABEAS.DESCRIPCION,  PRHD.APROBACION
-                         FROM  PATIENT_REG_HABEAS_DATA AS PRHD INNER JOIN
-                         ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION INNER JOIN
-                         MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO INNER JOIN
-                         MAESTRO_MOTIVOS_HABEAS ON AH.ID_MOTIVO = MAESTRO_MOTIVOS_HABEAS.ID_MOTIVO
+        SELECT PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, 
+               MAESTRO_MOTIVOS_HABEAS.DESCRIPCION, PRHD.APROBACION,PRHD.CODIGO, MM.ID_MEDICO
+        FROM PATIENT_REG_HABEAS_DATA AS PRHD
+        INNER JOIN ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION
+        INNER JOIN MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO
+        INNER JOIN MAESTRO_MOTIVOS_HABEAS ON AH.ID_MOTIVO = MAESTRO_MOTIVOS_HABEAS.ID_MOTIVO
         WHERE PRHD.TIPO_ID = ? AND PRHD.NO_IDENTIFICACION = ?
     """;
 
-    // Limpieza de comillas
-    String tipo = tipoId != null ? tipoId.replaceAll("^'+|'+$", "") : null;
-    String doc  = noIdentificacion != null ? noIdentificacion.replaceAll("^'+|'+$", "") : null;
+    // Ya no se limpian comillas, solo espacios
+    String tipo = tipoId != null ? tipoId.trim() : null;
+    String doc  = noIdentificacion != null ? noIdentificacion.trim() : null;
 
-
-    List<HabeasResponse> resultados = jdbcTemplate.query(
+    return jdbcTemplate.query(
         sql,
         (rs, rowNum) -> {
             HabeasResponse r = new HabeasResponse();
             r.setNoIdentificacion(rs.getString("NO_IDENTIFICACION"));
             r.setNombreMedico(rs.getString("NOMBRE_COMPLETO"));
             r.setFechaRegistro(rs.getString("FECHA_REGISTRO"));
-            
             r.setDescripcion(rs.getString("DESCRIPCION"));
-        r.setAprobacion(rs.getString("APROBACION"));
-            
+            r.setAprobacion(rs.getString("APROBACION"));
+             r.setCodigo(rs.getString("CODIGO"));
+                r.setIdMedico(rs.getString("ID_MEDICO"));
             return r;
         },
         tipo, doc
     );
-
-    return resultados;
-    
 }
+
 
 
 @Transactional
@@ -217,21 +216,53 @@ WHERE PRHD.NO_IDENTIFICACION = ? and PRHD.APROBACION= ?)
 
     private final HabeasRepository habeasRepository;
 
-    private HabeasRepository repository;
 
-    public boolean validarYActualizar(String noIdentificacion, String codigo) {
-        Optional<HasbeasData> registroOpt =
-            habeasRepository.findByNoIdentificacionAndCodigoAndAprobacion(noIdentificacion, codigo, "P");
+public boolean validarYActualizar(String noIdentificacion, String codigo) {
+    if (noIdentificacion == null || codigo == null) return false;
 
-        if (registroOpt.isPresent()) {
-            HasbeasData registro = registroOpt.get();
-            registro.setAprobacion("S");
-            registro.setFechaAprobacion(LocalDate.now()); // Opcional: si manejas fecha
-            repository.save(registro);
-            return true;
+    // Normaliza los datos
+    String doc = noIdentificacion.trim();
+    String cod = codigo.trim();
+
+    log.info("🧪 Validando para doc={} y codigo={}", doc, cod);
+
+    Optional<HasbeasData> registroOpt =
+        habeasRepository.findByNoIdentificacionAndCodigoAndAprobacion(doc, cod, "P");
+
+    if (registroOpt.isPresent()) {
+        HasbeasData registro = registroOpt.get();
+        registro.setAprobacion("S");
+        registro.setFechaAprobacion(LocalDate.now());
+        habeasRepository.save(registro);
+        return true;
+    }
+
+    return false;
+}
+
+private static final String MIRTH_EMAIL_URL = "http://192.168.10.6:9111/ws_EmailHabeas/";
+
+
+    @Async
+    public CompletableFuture<String> enviarCorreoAsync(mensajeRequest mensaje) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<mensajeRequest> request = new HttpEntity<>(mensaje, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                MIRTH_EMAIL_URL,
+                HttpMethod.POST,
+                request,
+                String.class
+            );
+
+            return CompletableFuture.completedFuture("✅ Correo enviado: " + response.getBody());
+
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture("❌ Error al enviar correo: " + e.getMessage());
         }
-
-        return false;
     }
 
 
