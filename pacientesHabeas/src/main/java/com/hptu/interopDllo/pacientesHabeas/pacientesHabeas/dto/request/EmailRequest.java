@@ -5,11 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class mensajeRequest {
-    private String mensaje;
-    private String destinatario;
+public class EmailRequest {
+    private String codigo;
+    private String emailpac;
+     private String paciente;
 
 }
-
-
-

@@ -1,5 +1,6 @@
 package com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.services;
 
+import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.EmailRequest;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.HabeasRequest;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.request.mensajeRequest;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.HabeasResponse;
@@ -11,6 +12,7 @@ import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.repository.HabeasRep
 import java.sql.Timestamp;
 
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -240,16 +242,16 @@ public boolean validarYActualizar(String noIdentificacion, String codigo) {
     return false;
 }
 
-private static final String MIRTH_EMAIL_URL = "http://192.168.10.6:9111/ws_EmailHabeas/";
+   private static final String MIRTH_EMAIL_URL = "http://192.168.10.6:9111/ws_EmailHabeas/";
 
 
     @Async
-    public CompletableFuture<String> enviarCorreoAsync(mensajeRequest mensaje) {
+    public CompletableFuture<String> enviarCorreoAsync(EmailRequest mensaje) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<mensajeRequest> request = new HttpEntity<>(mensaje, headers);
+            HttpEntity<EmailRequest> request = new HttpEntity<>(mensaje, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                 MIRTH_EMAIL_URL,
