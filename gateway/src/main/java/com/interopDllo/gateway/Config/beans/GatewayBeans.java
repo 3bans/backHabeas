@@ -5,12 +5,10 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpMethod;
 
 import com.interopDllo.gateway.filters.AuthFilter;
 
 import lombok.AllArgsConstructor;
-import reactor.core.publisher.Mono;
 
 @Configuration
 @AllArgsConstructor
@@ -97,6 +95,14 @@ public class GatewayBeans {
                     .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
                 )
                 .uri("lb://pacientesHabeas") )
+
+                  .route("adminUsuario-listaUsuarios", route -> route
+                .path("/api/usuarios/listaUsuario")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
             .build();
     }
     

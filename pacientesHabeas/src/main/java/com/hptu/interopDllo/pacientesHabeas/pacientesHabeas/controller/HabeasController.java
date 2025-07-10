@@ -24,7 +24,6 @@ import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.Motivos
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.dto.response.SyncResponse;
 import com.hptu.interopDllo.pacientesHabeas.pacientesHabeas.services.HabeasService;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
