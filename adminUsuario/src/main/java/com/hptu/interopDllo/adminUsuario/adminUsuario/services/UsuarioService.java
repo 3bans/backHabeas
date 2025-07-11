@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hptu.interopDllo.adminUsuario.adminUsuario.Repository.UsuarioRepository;
 import com.hptu.interopDllo.adminUsuario.adminUsuario.dto.UsuarioDTO;
+import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.Usuarios;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,5 +36,10 @@ public class UsuarioService {
 
     return resultado;
 }
+
+public Usuarios crearUsuario(Usuarios usuario) {
+    return usuarioRepository.save(usuario);
+}
+
 
 }

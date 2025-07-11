@@ -8,11 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.Usuarios;
 
-
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuarios, String> {
 
-
+    /**
+     * Consulta usuarios con roles y estado legible.
+     */
     @Query(value = """
         SELECT
             u.ID_USUARIO as idUsuario,
@@ -31,4 +32,6 @@ public interface UsuarioRepository extends JpaRepository<Usuarios, String> {
         INNER JOIN ADMIN_ROL r ON u.ROL_ID = r.ID_ROL
         """, nativeQuery = true)
     List<Object[]> obtenerUsuariosConRolesRaw();
+
+    // ✅ Ya puedes usar: save(Usuarios usuario)
 }
