@@ -11,7 +11,7 @@ import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.Rol;
 import com.hptu.interopDllo.adminUsuario.adminUsuario.services.RolService;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/roles")
 public class RolController {
 
     private final RolService service;

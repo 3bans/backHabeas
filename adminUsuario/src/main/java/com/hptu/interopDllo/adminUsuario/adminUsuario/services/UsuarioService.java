@@ -29,7 +29,7 @@ public class UsuarioService {
         dto.setPuntoAtencion((String) fila[3]);
         dto.setDepartamento((String) fila[4]);
         dto.setSeccion((String) fila[5]);
-        dto.setNombreRol((String) fila[6]);
+        dto.setRolId((String) fila[6]);
         dto.setEstado((String) fila[7]);
         resultado.add(dto);
     }

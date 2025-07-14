@@ -33,3 +33,4 @@ public class Usuarios {
     @Column(name = "SECCION")
     private String seccion;
 }
+

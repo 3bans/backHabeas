@@ -103,6 +103,39 @@ public class GatewayBeans {
                     .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
                 )
                 .uri("lb://adminUsuario") )
+
+ .route("adminUsuario-roles", route -> route
+                .path("/api/roles/activos")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
+ .route("adminUsuario-roles", route -> route
+                .path("/api/roles/activos")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
+
+                 .route("adminUsuario-puntoServicio", route -> route
+                .path("/api/puntoServicio/activos")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
+
+  .route("adminUsuario-crear", route -> route
+                .path("/api/usuarios/crear")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
+
+
             .build();
     }
     

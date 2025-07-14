@@ -11,7 +11,7 @@ import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.PuntoServici
 import com.hptu.interopDllo.adminUsuario.adminUsuario.services.PuntoServicioService;
 
 @RestController
-@RequestMapping("/api/puntos-servicio")
+@RequestMapping("puntoServicio")
 public class PuntoServicioController {
 
     private final PuntoServicioService service;
