@@ -15,6 +15,8 @@ public class UsuarioDTO {
     private String puntoAtencion;
     private String departamento;
     private String seccion;
-    private String rolId;
+    private Integer rolId;
     private String estado;
+    private String nombreRol;
+    private Integer idPuntoAtencion; 
 }

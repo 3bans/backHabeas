@@ -2,9 +2,11 @@ package com.hptu.interopDllo.adminUsuario.adminUsuario.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,4 +35,16 @@ public class UsuarioController {
         Usuarios nuevoUsuario = usuarioService.crearUsuario(usuario);
         return ResponseEntity.ok(nuevoUsuario);
     }
+
+    @PutMapping("/actualizar")
+    public ResponseEntity<?> actualizarUsuario(@RequestBody Usuarios usuario) {
+    try {
+        Usuarios actualizado = usuarioService.actualizarUsuario(usuario);
+        return ResponseEntity.ok(actualizado);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error al actualizar el usuario: " + e.getMessage());
+    }
+}
+
 }
