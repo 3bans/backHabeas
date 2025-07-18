@@ -135,7 +135,13 @@ public class GatewayBeans {
                 )
                 .uri("lb://adminUsuario") )
 
-
+       .route("adminUsuario-actualizar", route -> route
+                .path("/api/usuarios/actualizar")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
                 .route("adminUsuario-activos", route -> route
                 .path("/api/usuarios/activos")
                  .filters(f -> f
@@ -168,10 +174,37 @@ public class GatewayBeans {
                 )
                 .uri("lb://adminUsuario") )
                 
+                .route("adminUsuario-secretarias", route -> route
+                .path("/api/usuarios/secretarias")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
 
-
-
-
+                 .route("adminUsuario-asignacionMedicos", route -> route
+                .path("/api/asignacionMedicos/asignar")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://adminUsuario") )
+.route("adminUsuario-medicos", route -> route
+    .path("/api/asignacionMedicos/medicoSecretaria/**")
+    .filters(f -> f
+        .filter(authFilter)
+        .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+    )
+    .uri("lb://adminUsuario")
+)
+.route("adminUsuario-medicoSecretaria", route -> route
+    .path("/api/asignacionMedicos/secretariAsignada/**")
+    .filters(f -> f
+        .filter(authFilter)
+        .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+    )
+    .uri("lb://adminUsuario")  // Este es el nombre del servicio en Eureka o tu LoadBalancer
+)
 
 
             .build();

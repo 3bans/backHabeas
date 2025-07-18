@@ -73,6 +73,10 @@ public class UsuarioService {
     // Guarda y retorna
     return usuarioRepository.save(usuario);
     }
+
+     public List<Usuarios> obtenerUsuariosMedicosActivos() {
+        return usuarioRepository.obtenerUsuariosMedicosActivos();
+    }
 }
 
 

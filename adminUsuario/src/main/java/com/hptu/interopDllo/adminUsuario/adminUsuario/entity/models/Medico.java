@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 public class Medico {
 
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_MEDICO")
     private Long idMedico;
 

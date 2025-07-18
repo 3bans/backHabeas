@@ -22,7 +22,7 @@ public interface UsuarioRepository extends JpaRepository<Usuarios, String> {
     u.TIPOID_USUARIO AS tipoIdUsuario,
     u.NOMBRE AS nombre,
     u.PUNTO_ATENCION AS puntoAtencion,
-    COALESCE(p.ID_PUNTO, 13) AS idPuntoAtencion, -- Si no lo encuentra, usa ID de "OTRO"
+    COALESCE(p.ID_PUNTO, 13) AS idPuntoAtencion, 
     u.DEPARTAMENTO AS departamento,
     u.SECCION AS seccion,
     r.NOMBRE_ROL AS nombreRol,
@@ -37,4 +37,12 @@ LEFT JOIN ADMIN_PUNTO_SERVICIO p ON TRIM(UPPER(p.NOMBRE_PUNTO)) = TRIM(UPPER(u.P
 INNER JOIN ADMIN_ROL r ON u.ROL_ID = r.ID_ROL;
         """, nativeQuery = true)
     List<Object[]> obtenerUsuariosConRolesRaw();
+
+@Query(value = """
+    SELECT * 
+    FROM ADMIN_USUARIO 
+    WHERE ROL_ID = '5' AND ESTADO = 'Activo'
+    """, nativeQuery = true)
+List<Usuarios> obtenerUsuariosMedicosActivos();
+
 }

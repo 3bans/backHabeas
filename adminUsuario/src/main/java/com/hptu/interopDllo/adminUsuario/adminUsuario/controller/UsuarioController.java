@@ -45,6 +45,13 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body("Error al actualizar el usuario: " + e.getMessage());
     }
+    
 }
+
+   @GetMapping("/secretarias")
+    public ResponseEntity<List<Usuarios>> obtenerUsuariosMedicosActivos() {
+        List<Usuarios> medicos = usuarioService.obtenerUsuariosMedicosActivos();
+        return ResponseEntity.ok(medicos);
+    }
 
 }
