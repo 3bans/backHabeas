@@ -20,9 +20,7 @@ public class AsignacionMedicoService {
 
     @Transactional
     public void asignarMedicos(AsignacionMedicoRequest request) {
-        // Eliminar asignaciones previas
-        repository.deleteByIdUsuario(request.getIdUsuario());
-
+      
         // Crear nuevas asignaciones
         List<AsignacionMedico> asignaciones = request.getIdMedicos().stream().map(idMedico -> {
             AsignacionMedico asignacion = new AsignacionMedico();

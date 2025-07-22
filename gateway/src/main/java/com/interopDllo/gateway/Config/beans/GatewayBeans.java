@@ -203,9 +203,25 @@ public class GatewayBeans {
         .filter(authFilter)
         .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
     )
-    .uri("lb://adminUsuario")  // Este es el nombre del servicio en Eureka o tu LoadBalancer
+    .uri("lb://adminUsuario")  
+)
+.route("menuHabeas-consultar", route -> route
+    .path("api/habeas/consultar/**")
+    .filters(f -> f
+        .filter(authFilter)
+        .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+    )
+    .uri("lb://menuHabeas")  
 )
 
+.route("menuHabeas-todos", route -> route
+    .path("/api/habeas/todos")
+    .filters(f -> f
+        .filter(authFilter)
+        .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+    )
+    .uri("lb://menuHabeas")  
+)
 
             .build();
     }
