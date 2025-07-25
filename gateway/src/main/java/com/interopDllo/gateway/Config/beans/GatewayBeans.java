@@ -119,6 +119,25 @@ public class GatewayBeans {
                 )
                 .uri("lb://adminUsuario") )
 
+
+
+ .route("pacientesHabeas-motivos", route -> route
+                .path("/api/habeas/motivos")
+                 .filters(f -> f
+                    .filter(authFilter)
+                    .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+                )
+                .uri("lb://pacientesHabeas") )
+
+
+          
+
+
+
+
+
+
+
                  .route("adminUsuario-puntoServicio", route -> route
                 .path("/api/puntoServicio/activos")
                  .filters(f -> f
@@ -205,14 +224,11 @@ public class GatewayBeans {
     )
     .uri("lb://adminUsuario")  
 )
-.route("menuHabeas-consultar", route -> route
-    .path("api/habeas/consultar/**")
-    .filters(f -> f
-        .filter(authFilter)
-        .rewritePath("/habeasLogin/api/(?<segment>.*)", "/api/${segment}")
+  .route("menuHabeas-consultar", r -> r
+      .path("/api/habeas/consultar")            // mismo prefix público que usas en Postman
+      .filters(f -> f.filter(authFilter))        // no necesita rewrite si el mapping interno es igual
+      .uri("lb://menuHabeas")
     )
-    .uri("lb://menuHabeas")  
-)
 
 .route("menuHabeas-todos", route -> route
     .path("/api/habeas/todos")

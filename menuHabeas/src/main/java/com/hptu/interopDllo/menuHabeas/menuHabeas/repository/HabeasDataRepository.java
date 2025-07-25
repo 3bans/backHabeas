@@ -28,6 +28,7 @@ public List<HabeasDataResponse> consultarConFiltros(String identificacionMedico,
         WHERE 1 = 1
     """);
 
+
     if (identificacionMedico != null && !identificacionMedico.isBlank()) {
         sql.append(" AND prhd.asignacionHabeas.medico.identificacion = :identificacionMedico");
     }
