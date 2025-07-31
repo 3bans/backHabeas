@@ -115,7 +115,6 @@ public class AuthController {
         try {
             Map<String, String> body = new HashMap<>();
             body.put("idUsuario", loginRequest.getUser());
-
             TokenDto jwtResponse = webClientBuilder.build()
                 .post()
                 .uri(JWT_URL)
@@ -141,6 +140,8 @@ public class AuthController {
         finalResponse.put("description", "Login exitoso");
         finalResponse.put("accessToken", jwtResponse.getAccessToken());
         finalResponse.put("nombre", usuario.getNombre());
+       finalResponse.put("rol", usuario.getRolId());
+
 
         return ResponseEntity.ok(finalResponse);
 

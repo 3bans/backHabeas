@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.scheduling.annotation.Async;
+import java.sql.Types;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -44,20 +45,23 @@ public class HabeasService {
      * Antes de ejecutar la consulta, elimina cualquier comilla simple al inicio o final de los parámetros.
      */
 
-public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId) {
+public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId,  String aplicacion) {
     String sql = """
         SELECT PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, 
                MAESTRO_MOTIVOS_HABEAS.DESCRIPCION, PRHD.APROBACION,PRHD.CODIGO, MM.ID_MEDICO
         FROM PATIENT_REG_HABEAS_DATA AS PRHD
         INNER JOIN ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION
-        INNER JOIN MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO
+        LEFT JOIN MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO
         INNER JOIN MAESTRO_MOTIVOS_HABEAS ON AH.ID_MOTIVO = MAESTRO_MOTIVOS_HABEAS.ID_MOTIVO
-        WHERE PRHD.TIPO_ID = ? AND PRHD.NO_IDENTIFICACION = ?
+        WHERE PRHD.TIPO_ID = ? AND PRHD.NO_IDENTIFICACION = ? AND AH.ID_APLICACION=?
     """;
 
     // Ya no se limpian comillas, solo espacios
     String tipo = tipoId != null ? tipoId.trim() : null;
     String doc  = noIdentificacion != null ? noIdentificacion.trim() : null;
+    String app  = aplicacion != null ? aplicacion.trim() : null;
+System.err.println(sql);
+System.err.println(tipo+' '+doc+' '+app);
 
     return jdbcTemplate.query(
         sql,
@@ -72,7 +76,7 @@ public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId)
                 r.setIdMedico(rs.getString("ID_MEDICO"));
             return r;
         },
-        tipo, doc
+        doc,tipo,app
     );
 }
 
@@ -83,7 +87,7 @@ public Long registrar(HabeasRequest req) {
     log.info("📥 Parámetros recibidos en HabeasRequest: {}", req);
 
     // Validación mínima (puedes agregar más si deseas)
-    if (req.getIdMedico() == null || req.getIdAplicacion() == null) {
+    if ( req.getIdAplicacion() == null) {
         throw new IllegalArgumentException("❌ idMedico e idAplicacion son obligatorios.");
     }
 
@@ -97,18 +101,30 @@ public Long registrar(HabeasRequest req) {
     KeyHolder asigHolder = new GeneratedKeyHolder();
     jdbcTemplate.update(conn -> {
         PreparedStatement ps = conn.prepareStatement(sqlAsig, Statement.RETURN_GENERATED_KEYS);
-        ps.setLong(1, 7); // ID_HABEAS fijo o configurable
+          ps.setLong(1, 7); // ID_HABEAS
+
+    // ————————————————
+    // Aquí controlamos idMedico nulo
+    if (req.getIdMedico() != null) {
         ps.setLong(2, req.getIdMedico());
-        ps.setLong(3, req.getIdAplicacion());
-        if (req.getIdMotivo() != null) {
-            ps.setInt(4, req.getIdMotivo());
-        } else {
+    } else {
+        ps.setNull(2, Types.BIGINT);
+    }
+    // ————————————————
 
-            ps.setNull(4, 6);
-        }
-        ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+    // ID_APLICACION (obligatorio)
+    ps.setLong(3, req.getIdAplicacion());
 
-        return ps;
+    // ID_MOTIVO (puede ser nulo)
+    if (req.getIdMotivo() != null) {
+        ps.setInt(4, req.getIdMotivo());
+    } else {
+        ps.setNull(4, Types.INTEGER);
+    }
+
+    ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+    return ps;
+
     }, asigHolder);
 
     Number keyAsig = asigHolder.getKey();

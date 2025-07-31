@@ -38,14 +38,17 @@ public class HabeasController {
     @GetMapping("/existe")
     public ResponseEntity<Map<String, Object>> existeHabeas(
             @RequestParam("noIdentificacion") String noIdentificacion,
-            @RequestParam("tipoId") String tipoId) {
+            @RequestParam("tipoId") String tipoId,
+         @RequestParam("aplicacion") String aplicacion
+
+            ) {
         log.debug("Entró a GET /habeas/existe con noIdentificacion={} y tipoId={}", noIdentificacion, tipoId);
 
         try {
-            List<HabeasResponse> resultado = habeasService.buscarHabeas(noIdentificacion, tipoId);
+            List<HabeasResponse> resultado = habeasService.buscarHabeas(noIdentificacion, tipoId, aplicacion);
 
             Map<String, Object> body = new HashMap<>();
-
+            System.err.println(resultado);
             if (!resultado.isEmpty()) {
                 body.put("code", 200);
                 body.put("description", "OK");
