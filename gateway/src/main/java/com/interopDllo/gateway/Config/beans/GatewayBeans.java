@@ -59,13 +59,28 @@ public class GatewayBeans {
                         .uri("lb://menuHabeas"))
 
     .route("pacientesHabeas-validarCodigo", route -> route
-                        .path(" /api/habeas/validarCodigo")
+                        .path("/api/habeas/validarCodigo")
                         .filters(f -> f
                                 .filter(authFilter))
-                                
                         .uri("lb://pacientesHabeas"))
 
-                       
+
+  .route("pacientesHabeas-secretaria", route -> route
+                        .path("/api/habeas/secretaria/**")
+                        .filters(f -> f
+                                .filter(authFilter))
+                        .uri("lb://pacientesHabeas"))
+
+.route("pacientesHabeas-render", r -> r
+                .path("/api/habeasText/**")
+                .filters(f -> f
+                    .filter(authFilter)
+                    // (Opcional) si quieres eliminar el prefijo al enviar al backend:
+                    //.rewritePath("/api/habeasText/(?<path>.*)", "/api/habeasText/${path}")
+                )
+                .uri("lb://pacientesHabeas")
+            )
+
                 .route("pacientesHabeas-enviar", route -> route
                         .path("/api/habeas/enviar")
                         .filters(f -> f

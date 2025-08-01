@@ -15,5 +15,6 @@ public class HabeasResponse {
            private String aprobacion;
             private String codigo;
             private String idMedico;
+            private String punto;
 
 }

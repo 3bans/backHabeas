@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class HabeasRequest {
 
-    
+    private Integer id_habeas;
     private Long idMedico;
     private Long idAplicacion;
     private Integer idMotivo;   // nulo si aprobó

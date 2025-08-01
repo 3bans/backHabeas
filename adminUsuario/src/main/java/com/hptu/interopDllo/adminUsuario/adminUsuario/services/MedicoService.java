@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.hptu.interopDllo.adminUsuario.adminUsuario.Repository.MedicoRepository;
 import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.Medico;
-import com.hptu.interopDllo.adminUsuario.adminUsuario.entity.models.Usuarios;
 
 import lombok.RequiredArgsConstructor;
 

@@ -42,7 +42,7 @@ public class HabeasController {
          @RequestParam("aplicacion") String aplicacion
 
             ) {
-        log.debug("Entró a GET /habeas/existe con noIdentificacion={} y tipoId={}", noIdentificacion, tipoId);
+        //log.debug("Entró a GET /habeas/existe con noIdentificacion={} y tipoId={}", noIdentificacion, tipoId);
 
         try {
             List<HabeasResponse> resultado = habeasService.buscarHabeas(noIdentificacion, tipoId, aplicacion);

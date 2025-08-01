@@ -45,24 +45,26 @@ public class HabeasService {
      * Antes de ejecutar la consulta, elimina cualquier comilla simple al inicio o final de los parámetros.
      */
 
-public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId,  String aplicacion) {
+public List<HabeasResponse> buscarHabeas(String noIdentificacion, String tipoId, String aplicacion) {
     String sql = """
         SELECT PRHD.NO_IDENTIFICACION, MM.NOMBRE_COMPLETO, AH.FECHA_REGISTRO, 
-               MAESTRO_MOTIVOS_HABEAS.DESCRIPCION, PRHD.APROBACION,PRHD.CODIGO, MM.ID_MEDICO
+               MAESTRO_MOTIVOS_HABEAS.DESCRIPCION, PRHD.APROBACION, PRHD.CODIGO, MM.ID_MEDICO,PRHD.PUNTO_ATENCION
         FROM PATIENT_REG_HABEAS_DATA AS PRHD
         INNER JOIN ASIGNACION_HABEAS AS AH ON PRHD.ID_ASIGNACION_HABEAS = AH.ID_ASIGNACION
         LEFT JOIN MAESTRO_MEDICOS AS MM ON AH.ID_MEDICO = MM.ID_MEDICO
         INNER JOIN MAESTRO_MOTIVOS_HABEAS ON AH.ID_MOTIVO = MAESTRO_MOTIVOS_HABEAS.ID_MOTIVO
-        WHERE PRHD.TIPO_ID = ? AND PRHD.NO_IDENTIFICACION = ? AND AH.ID_APLICACION=?
+        WHERE PRHD.TIPO_ID = ? 
+          AND PRHD.NO_IDENTIFICACION = ? 
+          AND AH.ID_APLICACION=?
     """;
 
-    // Ya no se limpian comillas, solo espacios
     String tipo = tipoId != null ? tipoId.trim() : null;
-    String doc  = noIdentificacion != null ? noIdentificacion.trim() : null;
-    String app  = aplicacion != null ? aplicacion.trim() : null;
-System.err.println(sql);
-System.err.println(tipo+' '+doc+' '+app);
+    String doc = noIdentificacion != null ? noIdentificacion.trim() : null;
+    String app = aplicacion != null ? aplicacion.trim() : null;
+    
+    System.err.println("Parámetros enviados: tipoId=" + tipo + ", noIdentificacion=" + doc + ", aplicacion=" + app);
 
+    // Orden corregido: tipo, doc, app
     return jdbcTemplate.query(
         sql,
         (rs, rowNum) -> {
@@ -72,11 +74,13 @@ System.err.println(tipo+' '+doc+' '+app);
             r.setFechaRegistro(rs.getString("FECHA_REGISTRO"));
             r.setDescripcion(rs.getString("DESCRIPCION"));
             r.setAprobacion(rs.getString("APROBACION"));
-             r.setCodigo(rs.getString("CODIGO"));
-                r.setIdMedico(rs.getString("ID_MEDICO"));
+            r.setCodigo(rs.getString("CODIGO"));
+            r.setIdMedico(rs.getString("ID_MEDICO"));
+            r.setPunto(rs.getString("PUNTO_ATENCION"));
+            
             return r;
         },
-        doc,tipo,app
+        tipo, doc, app  // Orden correcto
     );
 }
 
@@ -101,7 +105,7 @@ public Long registrar(HabeasRequest req) {
     KeyHolder asigHolder = new GeneratedKeyHolder();
     jdbcTemplate.update(conn -> {
         PreparedStatement ps = conn.prepareStatement(sqlAsig, Statement.RETURN_GENERATED_KEYS);
-          ps.setLong(1, 7); // ID_HABEAS
+          ps.setLong(1, req.getId_habeas()); // ID_HABEAS
 
     // ————————————————
     // Aquí controlamos idMedico nulo

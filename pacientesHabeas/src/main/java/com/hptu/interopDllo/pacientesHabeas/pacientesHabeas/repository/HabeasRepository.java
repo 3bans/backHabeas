@@ -16,6 +16,8 @@ public interface HabeasRepository extends JpaRepository<HasbeasData, Long> {
         String codigo,
         String aprobacion
     );
+
+    
 }
 
 
